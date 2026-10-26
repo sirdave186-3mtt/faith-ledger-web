@@ -139,3 +139,47 @@ export async function fetchMonthlySummaryFromSheet(spreadsheetId: string) {
 
     return response.data.values || [];
 }
+export interface AttendanceRecordPayload {
+    date: string;
+    serviceTitle: string;
+    men: number;
+    women: number;
+    children: number;
+    totalAttendance: number;
+    firstTimers: number;
+    notes?: string;
+}
+
+/**
+ * Appends a service attendance headcount to the ATTENDANCE_METRICS sheet
+ */
+export async function appendAttendanceToGoogleSheet(
+    spreadsheetId: string,
+    attendance: AttendanceRecordPayload
+) {
+    const sheets = getGoogleSheetsClient();
+
+    // Columns: Date, Service Title, Men, Women, Children, Total Attendance (formula), First Timers, Notes
+    const row = [
+        attendance.date,
+        attendance.serviceTitle,
+        attendance.men,
+        attendance.women,
+        attendance.children,
+        attendance.totalAttendance,
+        attendance.firstTimers,
+        attendance.notes || '',
+    ];
+
+    const response = await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: 'ATTENDANCE_METRICS!A:H',
+        valueInputOption: 'USER_ENTERED',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: {
+            values: [row],
+        },
+    });
+
+    return response.data;
+}
