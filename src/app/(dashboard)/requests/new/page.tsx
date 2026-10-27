@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import OCRUploader, { ExtractedReceiptData } from '@/components/ocr-uploader';
@@ -14,7 +14,11 @@ export default function NewRequisitionPage() {
     const [vendorName, setVendorName] = useState('');
     const [amount, setAmount] = useState<number | ''>('');
     const [category, setCategory] = useState<'allowances' | 'welfare' | 'utilities' | 'fuel' | 'capital_special'>('fuel');
-    const [sundayServiceTag, setSundayServiceTag] = useState(new Date().toISOString().split('T')[0]);
+    const [sundayServiceTag, setSundayServiceTag] = useState('');
+
+    useEffect(() => {
+        setSundayServiceTag(new Date().toISOString().split('T')[0]);
+    }, []);
     const [description, setDescription] = useState('');
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
     const [ocrPayload, setOcrPayload] = useState<ExtractedReceiptData | null>(null);

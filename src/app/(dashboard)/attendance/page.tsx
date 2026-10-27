@@ -30,7 +30,8 @@ export default function AttendancePage() {
     const supabase = createClient();
 
     // Form States
-    const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0]);
+    const [serviceDate, setServiceDate] = useState('');
+    const [todayFormatted, setTodayFormatted] = useState('');
     const [serviceTitle, setServiceTitle] = useState('Sunday 1st Service');
     const [customTitle, setCustomTitle] = useState('');
     const [men, setMen] = useState<number | ''>('');
@@ -76,6 +77,8 @@ export default function AttendancePage() {
     };
 
     useEffect(() => {
+        setServiceDate(new Date().toISOString().split('T')[0]);
+        setTodayFormatted(new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' }));
         fetchRecords();
     }, []);
 
@@ -181,7 +184,7 @@ export default function AttendancePage() {
                 </div>
                 <div className="flex items-center gap-2 rounded-lg bg-slate-900 border border-slate-800 px-3.5 py-1.5 text-xs text-slate-300">
                     <Calendar className="h-4 w-4 text-amber-500" />
-                    <span>{new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
+                    <span>{todayFormatted}</span>
                 </div>
             </div>
 

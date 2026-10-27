@@ -33,7 +33,8 @@ export default function IncomePage() {
     const supabase = createClient();
 
     // Form States
-    const [serviceDate, setServiceDate] = useState(new Date().toISOString().split('T')[0]);
+    const [serviceDate, setServiceDate] = useState('');
+    const [activePeriod, setActivePeriod] = useState('');
     const [serviceType, setServiceType] = useState<'sunday_service' | 'midweek_service' | 'crusade_special' | 'direct_transfer'>('sunday_service');
     const [tithe, setTithe] = useState<number | ''>('');
     const [offering, setOffering] = useState<number | ''>('');
@@ -80,6 +81,8 @@ export default function IncomePage() {
     };
 
     useEffect(() => {
+        setServiceDate(new Date().toISOString().split('T')[0]);
+        setActivePeriod(new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
         fetchRecords();
     }, []);
 
@@ -185,7 +188,7 @@ export default function IncomePage() {
                 </div>
                 <div className="flex items-center gap-2 rounded-lg bg-slate-900 border border-slate-800 px-3 py-1.5 text-xs text-slate-300">
                     <Calendar className="h-4 w-4 text-amber-500" />
-                    <span>Active Period: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                    <span>Active Period: {activePeriod}</span>
                 </div>
             </div>
 
