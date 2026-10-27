@@ -3,20 +3,17 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import {
-    DollarSign,
-    PlusCircle,
-    TrendingUp,
     Percent,
-    Calendar,
     CheckCircle2,
     AlertCircle,
-    Layers
+    Plus,
 } from 'lucide-react';
 
 interface InflowRecord {
     id: string;
+    tenant_id: string;
     service_date: string;
-    service_type: 'sunday_service' | 'midweek_service' | 'crusade_special' | 'direct_transfer';
+    service_type: string;
     tithe: number;
     offering: number;
     thanksgiving: number;
@@ -25,54 +22,65 @@ interface InflowRecord {
     total_inflow: number;
     yypc_remittance: number;
     net_inflow: number;
-    notes: string | null;
+    notes?: string | null;
     created_at: string;
 }
 
-export default function IncomePage() {
+export default function IncomeLedgerPage() {
     const supabase = createClient();
 
-    // Form States
-    const [serviceDate, setServiceDate] = useState('');
-    const [activePeriod, setActivePeriod] = useState('');
-    const [serviceType, setServiceType] = useState<'sunday_service' | 'midweek_service' | 'crusade_special' | 'direct_transfer'>('sunday_service');
-    const [tithe, setTithe] = useState<number | ''>('');
-    const [offering, setOffering] = useState<number | ''>('');
-    const [thanksgiving, setThanksgiving] = useState<number | ''>('');
-    const [seed, setSeed] = useState<number | ''>('');
-    const [otherInflows, setOtherInflows] = useState<number | ''>('');
-    const [yypcRemittance, setYypcRemittance] = useState<number | ''>('');
-    const [notes, setNotes] = useState('');
-
-    // UI & Data States
     const [records, setRecords] = useState<InflowRecord[]>([]);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    // Computed Inflow & Net
-    const numTithe = Number(tithe) || 0;
-    const numOffering = Number(offering) || 0;
-    const numThanksgiving = Number(thanksgiving) || 0;
-    const numSeed = Number(seed) || 0;
-    const numOther = Number(otherInflows) || 0;
-    const numYYPC = Number(yypcRemittance) || 0;
+    // Form State - initialized safely to prevent SSR hydration mismatches
+    const [serviceDate, setServiceDate] = useState<string>('');
+    const [serviceType, setServiceType] = useState<string>('sunday_first');
+    const [tithe, setTithe] = useState<string>('');
+    const [offering, setOffering] = useState<string>('');
+    const [thanksgiving, setThanksgiving] = useState<string>('');
+    const [seed, setSeed] = useState<string>('');
+    const [otherInflows, setOtherInflows] = useState<string>('');
+    const [notes, setNotes] = useState<string>('');
 
-    const calculatedTotal = useMemo(() => {
-        return numTithe + numOffering + numThanksgiving + numSeed + numOther;
-    }, [numTithe, numOffering, numThanksgiving, numSeed, numOther]);
+    // Optional YYPC Remittance Toggles for Special Givings
+    const [includeThanksgiving, setIncludeThanksgiving] = useState<boolean>(false);
+    const [includeSeed, setIncludeSeed] = useState<boolean>(false);
+    const [includeOther, setIncludeOther] = useState<boolean>(false);
 
-    const calculatedNet = useMemo(() => {
-        return calculatedTotal - numYYPC;
-    }, [calculatedTotal, numYYPC]);
+    // Safely populate date after component mounts on client
+    useEffect(() => {
+        setServiceDate(new Date().toISOString().split('T')[0]);
+    }, []);
 
-    const fetchRecords = async () => {
+    // Numerical conversions
+    const numTithe = parseFloat(tithe) || 0;
+    const numOffering = parseFloat(offering) || 0;
+    const numThanksgiving = parseFloat(thanksgiving) || 0;
+    const numSeed = parseFloat(seed) || 0;
+    const numOther = parseFloat(otherInflows) || 0;
+
+    const totalInflow = numTithe + numOffering + numThanksgiving + numSeed + numOther;
+
+    // 25% YYPC remittance base (Tithes and Offerings mandatory; Special Givings optional)
+    const yypcBase =
+        numTithe +
+        numOffering +
+        (includeThanksgiving ? numThanksgiving : 0) +
+        (includeSeed ? numSeed : 0) +
+        (includeOther ? numOther : 0);
+
+    const yypcRemittance = Math.round(yypcBase * 0.25 * 100) / 100;
+    const netInflow = totalInflow - yypcRemittance;
+
+    const fetchInflowRecords = async () => {
         setIsLoading(true);
         const { data, error } = await supabase
             .from('inflow_records')
             .select('*')
             .order('service_date', { ascending: false })
-            .limit(20);
+            .limit(50);
 
         if (!error && data) {
             setRecords(data as InflowRecord[]);
@@ -81,377 +89,471 @@ export default function IncomePage() {
     };
 
     useEffect(() => {
-        setServiceDate(new Date().toISOString().split('T')[0]);
-        setActivePeriod(new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }));
-        fetchRecords();
+        fetchInflowRecords();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (totalInflow <= 0) {
+            setStatusMsg({ type: 'error', text: 'Total collection amount must be greater than zero.' });
+            return;
+        }
+
         setIsSubmitting(true);
         setStatusMsg(null);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('Authentication required.');
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
 
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('tenant_id, role')
-                .eq('id', user.id)
-                .single();
-
-            const tenantId = profile?.tenant_id || process.env.NEXT_PUBLIC_DEFAULT_TENANT_ID || 'org_hol_kubwa';
+            // total_inflow is omitted because it is a generated column in PostgreSQL
+            const newRecord = {
+                tenant_id: 'org_hol_kubwa',
+                service_date: serviceDate || new Date().toISOString().split('T')[0],
+                service_type: serviceType,
+                tithe: numTithe,
+                offering: numOffering,
+                thanksgiving: numThanksgiving,
+                seed: numSeed,
+                other_inflows: numOther,
+                yypc_remittance: yypcRemittance,
+                net_inflow: netInflow,
+                recorded_by: user?.id,
+                notes: notes.trim() || null,
+            };
 
             // 1. Insert into Supabase
-            const { data: newRecord, error: insertError } = await supabase
+            const { data: insertedData, error: dbError } = await supabase
                 .from('inflow_records')
-                .insert({
-                    tenant_id: tenantId,
-                    service_date: serviceDate,
-                    service_type: serviceType,
-                    tithe: numTithe,
-                    offering: numOffering,
-                    thanksgiving: numThanksgiving,
-                    seed: numSeed,
-                    other_inflows: numOther,
-                    yypc_remittance: numYYPC,
-                    recorded_by: user.id,
-                    notes: notes || null,
-                })
+                .insert([newRecord])
                 .select()
                 .single();
 
-            if (insertError) throw insertError;
+            if (dbError) {
+                console.error('PostgREST Error:', dbError.message, dbError.details, dbError.hint);
+                throw new Error(dbError.message || dbError.details || 'Database insert failed.');
+            }
 
-            // 2. Log in Audit Trail
-            await supabase.from('audit_logs').insert({
-                tenant_id: tenantId,
-                actor_id: user.id,
-                action: 'INFLOW_RECORDED',
-                entity_name: 'inflow_records',
-                entity_id: newRecord.id,
-                metadata_diff: {
-                    total: calculatedTotal,
-                    net: calculatedNet,
-                    yypc: numYYPC,
-                },
+            // 2. Outbound sync to Google Sheets via server API route
+            let sheetSyncSucceeded = false;
+            try {
+                const syncRes = await fetch('/api/income/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: insertedData?.id,
+                        service_date: serviceDate || new Date().toISOString().split('T')[0],
+                        service_type: serviceType,
+                        tithe: numTithe,
+                        offering: numOffering,
+                        thanksgiving: numThanksgiving,
+                        seed: numSeed,
+                        other_inflows: numOther,
+                        total_inflow: totalInflow,
+                        yypc_remittance: yypcRemittance,
+                        net_inflow: netInflow,
+                        recorded_by: user?.email || 'Admin 1',
+                        notes: notes.trim() || null,
+                    }),
+                });
+
+                if (syncRes.ok) {
+                    sheetSyncSucceeded = true;
+                }
+            } catch (sheetErr) {
+                console.warn('Google Sheets background sync notice:', sheetErr);
+            }
+
+            setStatusMsg({
+                type: 'success',
+                text: `Inflow of ₦${totalInflow.toLocaleString()} registered${sheetSyncSucceeded ? ' and synced to Google Sheets' : ''
+                    }. ₦${yypcRemittance.toLocaleString()} earmarked for YYPC.`,
             });
 
-            // 3. Trigger Outbound Sync to Admin 1's Google Sheet
-            await fetch('/api/sync/sheets/inflow-outbound', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    transactionId: newRecord.id,
-                    date: serviceDate,
-                    serviceType,
-                    tithe: numTithe,
-                    offering: numOffering,
-                    thanksgiving: numThanksgiving,
-                    seed: numSeed,
-                    otherInflows: numOther,
-                    yypcRemittance: numYYPC,
-                    recordedBy: profile?.role?.toUpperCase() || 'ADMIN',
-                    notes,
-                }),
-            });
-
-            setStatusMsg({ type: 'success', text: 'Inflow entry saved and synchronized with Google Sheets.' });
-
-            // Reset Form fields
+            // Reset form fields
             setTithe('');
             setOffering('');
             setThanksgiving('');
             setSeed('');
             setOtherInflows('');
-            setYypcRemittance('');
             setNotes('');
-            fetchRecords();
+            setIncludeThanksgiving(false);
+            setIncludeSeed(false);
+            setIncludeOther(false);
+
+            fetchInflowRecords();
         } catch (err: any) {
             console.error('Inflow submit error:', err);
-            setStatusMsg({ type: 'error', text: err.message || 'Error recording inflow.' });
+            setStatusMsg({
+                type: 'error',
+                text: err?.message || 'Failed to record entry.',
+            });
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    const formatServiceType = (type: string) => {
+        switch (type) {
+            case 'sunday_first':
+                return 'Sunday 1st Service';
+            case 'sunday_second':
+                return 'Sunday 2nd Service';
+            case 'midweek':
+                return 'Midweek Service';
+            case 'special':
+                return 'Special Program';
+            default:
+                return type ? type.replace(/_/g, ' ') : 'General Service';
+        }
+    };
+
+    const aggregatedTotal = useMemo(() => records.reduce((acc, r) => acc + (Number(r.total_inflow) || 0), 0), [records]);
+    const aggregatedYYPC = useMemo(() => records.reduce((acc, r) => acc + (Number(r.yypc_remittance) || 0), 0), [records]);
+    const aggregatedNet = useMemo(() => records.reduce((acc, r) => acc + (Number(r.net_inflow) || 0), 0), [records]);
+
     return (
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
             {/* Header */}
-            <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">Income & Giving Ledger</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                        Income & Giving Ledger
+                    </h1>
                     <p className="mt-1 text-xs text-slate-500">
-                        Record weekly collections, Thanksgiving, Seed Faith, and automatically calculate YYPC deductions.
+                        Household of Love Church, Kubwa • Record service collections and compute YYPC 25% remittance allocations.
                     </p>
                 </div>
-                <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-3.5 py-1.5 text-xs text-slate-700 shadow-sm">
-                    <Calendar className="h-4 w-4 text-amber-600" />
-                    <span>Active Period: {activePeriod}</span>
+
+                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 shadow-sm">
+                    <Percent className="h-4 w-4 text-amber-600" />
+                    <span>25% Tithe & Offering Remittance Enforced</span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                {/* Entry Form */}
-                <div className="lg:col-span-5">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 text-amber-700 font-bold text-sm">
-                            <PlusCircle className="h-4 w-4 text-amber-600" />
-                            <span>Record Service Inflow</span>
+            {/* Aggregate Cards */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        Gross Collections
+                    </span>
+                    <p className="mt-2 text-2xl font-extrabold text-slate-900">
+                        ₦{aggregatedTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                    <span className="mt-1 text-[11px] text-slate-500">Total recorded service inflows</span>
+                </div>
+
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-5 shadow-sm">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700">
+                            YYPC Remittance (25%)
+                        </span>
+                        <span className="rounded-full bg-amber-200/60 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                            Youth Fellowship
+                        </span>
+                    </div>
+                    <p className="mt-2 text-2xl font-extrabold text-amber-900">
+                        ₦{aggregatedYYPC.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                    <span className="mt-1 text-[11px] text-amber-700">Total allocated to YYPC</span>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5 shadow-sm">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700">
+                        Net Church Retained
+                    </span>
+                    <p className="mt-2 text-2xl font-extrabold text-emerald-900">
+                        ₦{aggregatedNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                    <span className="mt-1 text-[11px] text-emerald-700">Available church operational funds</span>
+                </div>
+            </div>
+
+            {/* Main Grid: Form + Table */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+                {/* Form Card */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-5">
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-3">
+                        Register Service Collections
+                    </h2>
+
+                    {statusMsg && (
+                        <div
+                            className={`mt-4 flex items-start gap-2 rounded-xl border p-3 text-xs ${statusMsg.type === 'success'
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                                    : 'border-rose-200 bg-rose-50 text-rose-800'
+                                }`}
+                        >
+                            {statusMsg.type === 'success' ? (
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+                            ) : (
+                                <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+                            )}
+                            <span>{statusMsg.text}</span>
                         </div>
+                    )}
 
-                        {statusMsg && (
-                            <div
-                                className={`mt-4 flex items-center gap-2 rounded-lg p-3 text-xs border ${statusMsg.type === 'success'
-                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                                        : 'border-rose-200 bg-rose-50 text-rose-800'
-                                    }`}
-                            >
-                                {statusMsg.type === 'success' ? (
-                                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
-                                ) : (
-                                    <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
-                                )}
-                                <span>{statusMsg.text}</span>
-                            </div>
-                        )}
-
-                        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Service Date
-                                    </label>
-                                    <input
-                                        type="date"
-                                        required
-                                        value={serviceDate}
-                                        onChange={(e) => setServiceDate(e.target.value)}
-                                        className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Service Type
-                                    </label>
-                                    <select
-                                        value={serviceType}
-                                        onChange={(e: any) => setServiceType(e.target.value)}
-                                        className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
-                                    >
-                                        <option value="sunday_service">Sunday Service</option>
-                                        <option value="midweek_service">Midweek Service</option>
-                                        <option value="crusade_special">Special / Crusade</option>
-                                        <option value="direct_transfer">Direct Transfer</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Inflow Inputs */}
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Tithe (₦)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={tithe}
-                                        onChange={(e) => setTithe(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Offering (₦)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={offering}
-                                        onChange={(e) => setOffering(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Thanksgiving (₦)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={thanksgiving}
-                                        onChange={(e) => setThanksgiving(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Seed Faith (₦)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={seed}
-                                        onChange={(e) => setSeed(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                        Other Inflows (₦)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={otherInflows}
-                                        onChange={(e) => setOtherInflows(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-rose-700">
-                                        YYPC Remittance (₦)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        value={yypcRemittance}
-                                        onChange={(e) => setYypcRemittance(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-rose-300 bg-rose-50/60 px-3 py-2 text-xs text-rose-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 focus:outline-none shadow-sm font-mono"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Dynamic Calculations Widget */}
-                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5">
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-600">Total Gross Inflow:</span>
-                                    <span className="font-bold text-slate-900 font-mono">
-                                        ₦{calculatedTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-rose-600">YYPC Deduction:</span>
-                                    <span className="font-semibold text-rose-600 font-mono">
-                                        - ₦{numYYPC.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                                <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-xs">
-                                    <span className="font-bold text-amber-700">Net Retained Church Inflow:</span>
-                                    <span className="font-bold text-amber-700 font-mono text-sm">
-                                        ₦{calculatedNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                    </span>
-                                </div>
-                            </div>
-
+                    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
-                                    Notes / References
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                    Service Date
                                 </label>
                                 <input
-                                    type="text"
-                                    placeholder="e.g. 1st Sunday Thanksgiving, Special Seed pledge"
-                                    value={notes}
-                                    onChange={(e) => setNotes(e.target.value)}
-                                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
+                                    type="date"
+                                    required
+                                    value={serviceDate}
+                                    onChange={(e) => setServiceDate(e.target.value)}
+                                    className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                                 />
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={isSubmitting || calculatedTotal <= 0}
-                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 py-2.5 text-xs font-bold text-slate-950 hover:bg-amber-400 transition disabled:opacity-50 shadow-sm shadow-amber-500/20"
-                            >
-                                <DollarSign className="h-4 w-4" />
-                                {isSubmitting ? 'Recording & Syncing...' : 'Save & Sync Inflow'}
-                            </button>
-                        </form>
-                    </div>
+                            <div>
+                                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                    Service Type
+                                </label>
+                                <select
+                                    value={serviceType}
+                                    onChange={(e) => setServiceType(e.target.value)}
+                                    className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                >
+                                    <option value="sunday_first">Sunday 1st Service</option>
+                                    <option value="sunday_second">Sunday 2nd Service</option>
+                                    <option value="midweek">Midweek Service</option>
+                                    <option value="special">Special Program</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Tithes & Offerings (Auto 25%) */}
+                        <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-3.5 space-y-3">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                                Mandatory 25% YYPC Remittance Categories
+                            </span>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-700">Tithe (₦)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={tithe}
+                                        onChange={(e) => setTithe(e.target.value)}
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-xs font-medium text-slate-700">Offering (₦)</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        placeholder="0.00"
+                                        value={offering}
+                                        onChange={(e) => setOffering(e.target.value)}
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Special Givings (Optional Remittance) */}
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3.5 space-y-3">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
+                                Special Givings (Optional Remittance)
+                            </span>
+
+                            {/* Thanksgiving */}
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-medium text-slate-700">Thanksgiving (₦)</label>
+                                    <label className="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={includeThanksgiving}
+                                            onChange={(e) => setIncludeThanksgiving(e.target.checked)}
+                                            className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                                        />
+                                        <span>Include 25% YYPC</span>
+                                    </label>
+                                </div>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={thanksgiving}
+                                    onChange={(e) => setThanksgiving(e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                />
+                            </div>
+
+                            {/* Special Seed */}
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-medium text-slate-700">Special Seed (₦)</label>
+                                    <label className="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={includeSeed}
+                                            onChange={(e) => setIncludeSeed(e.target.checked)}
+                                            className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                                        />
+                                        <span>Include 25% YYPC</span>
+                                    </label>
+                                </div>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={seed}
+                                    onChange={(e) => setSeed(e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                />
+                            </div>
+
+                            {/* Other Inflows */}
+                            <div>
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-medium text-slate-700">Other Inflows (₦)</label>
+                                    <label className="flex items-center gap-1.5 text-[11px] text-slate-500 cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={includeOther}
+                                            onChange={(e) => setIncludeOther(e.target.checked)}
+                                            className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                                        />
+                                        <span>Include 25% YYPC</span>
+                                    </label>
+                                </div>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    placeholder="0.00"
+                                    value={otherInflows}
+                                    onChange={(e) => setOtherInflows(e.target.value)}
+                                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Live Computation Summary */}
+                        <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-1.5 text-xs">
+                            <div className="flex justify-between text-slate-600">
+                                <span>Total Collection:</span>
+                                <span className="font-bold text-slate-900 font-mono">
+                                    ₦{totalInflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-amber-700">
+                                <span>YYPC Remittance (25%):</span>
+                                <span className="font-bold font-mono">
+                                    - ₦{yypcRemittance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-emerald-800 border-t border-slate-100 pt-1.5 font-bold">
+                                <span>Net Church Retained:</span>
+                                <span className="font-mono">
+                                    ₦{netInflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600">
+                                Notes / Particulars
+                            </label>
+                            <textarea
+                                rows={2}
+                                placeholder="Optional notes or teller references..."
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                className="mt-1.5 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isSubmitting}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50"
+                        >
+                            <Plus className="h-4 w-4" />
+                            <span>{isSubmitting ? 'Registering Inflows...' : 'Save Service Collections'}</span>
+                        </button>
+                    </form>
                 </div>
 
-                {/* Inflow Ledger View */}
-                <div className="lg:col-span-7 space-y-6">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-                                <Layers className="h-4 w-4 text-amber-600" />
-                                <span>Recent Recorded Inflows</span>
-                            </div>
-                            <span className="text-[11px] text-slate-500">Last 20 entries</span>
-                        </div>
+                {/* Ledger Table */}
+                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden lg:col-span-7">
+                    <div className="flex items-center justify-between border-b border-slate-100 p-4">
+                        <h3 className="text-sm font-bold text-slate-900">Service Collection History</h3>
+                        <span className="text-[11px] font-medium text-slate-500 font-mono">
+                            {records.length} Record{records.length === 1 ? '' : 's'}
+                        </span>
+                    </div>
 
-                        <div className="mt-4 overflow-x-auto">
-                            <table className="w-full text-left text-xs">
-                                <thead>
-                                    <tr className="border-b border-slate-200 text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
-                                        <th className="pb-3">Date</th>
-                                        <th className="pb-3">Service</th>
-                                        <th className="pb-3">Tithe</th>
-                                        <th className="pb-3">Offering</th>
-                                        <th className="pb-3">Seed/Thanksg</th>
-                                        <th className="pb-3">YYPC</th>
-                                        <th className="pb-3 text-right">Net Inflow</th>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                            <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                                    <th className="px-4 py-3">Service Date</th>
+                                    <th className="px-4 py-3 text-right">Tithe & Offering</th>
+                                    <th className="px-4 py-3 text-right">Total Inflow</th>
+                                    <th className="px-4 py-3 text-right">YYPC (25%)</th>
+                                    <th className="px-4 py-3 text-right">Net Retained</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {isLoading ? (
+                                    <tr>
+                                        <td colSpan={5} className="py-12 text-center text-slate-400">
+                                            Loading collection records...
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {isLoading ? (
-                                        <tr>
-                                            <td colSpan={7} className="py-6 text-center text-slate-500">
-                                                Loading inflow ledger...
-                                            </td>
-                                        </tr>
-                                    ) : records.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={7} className="py-6 text-center text-slate-500">
-                                                No entries recorded yet.
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        records.map((r) => (
+                                ) : records.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} className="py-12 text-center text-slate-400">
+                                            No service records found.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    records.map((r) => {
+                                        const titheOffering = (Number(r.tithe) || 0) + (Number(r.offering) || 0);
+
+                                        return (
                                             <tr key={r.id} className="hover:bg-slate-50/80 transition">
-                                                <td className="py-3 font-semibold text-slate-900">{r.service_date}</td>
-                                                <td className="py-3 text-slate-600 capitalize">
-                                                    {r.service_type.replace('_', ' ')}
+                                                <td className="px-4 py-3">
+                                                    <p className="font-semibold text-slate-900">{r.service_date}</p>
+                                                    <p className="text-[10px] text-slate-400">{formatServiceType(r.service_type)}</p>
                                                 </td>
-                                                <td className="py-3 font-mono text-slate-700">
-                                                    ₦{Number(r.tithe).toLocaleString()}
+
+                                                <td className="px-4 py-3 text-right font-mono text-slate-700">
+                                                    ₦{titheOffering.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="py-3 font-mono text-slate-700">
-                                                    ₦{Number(r.offering).toLocaleString()}
+
+                                                <td className="px-4 py-3 text-right font-mono font-semibold text-slate-900">
+                                                    ₦{Number(r.total_inflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="py-3 font-mono text-slate-700">
-                                                    ₦{(Number(r.seed) + Number(r.thanksgiving)).toLocaleString()}
+
+                                                <td className="px-4 py-3 text-right font-mono font-semibold text-amber-700">
+                                                    ₦{Number(r.yypc_remittance).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </td>
-                                                <td className="py-3 font-mono text-rose-600 font-semibold">
-                                                    ₦{Number(r.yypc_remittance).toLocaleString()}
-                                                </td>
-                                                <td className="py-3 font-mono font-bold text-amber-700 text-right">
-                                                    ₦{Number(r.net_inflow).toLocaleString()}
+
+                                                <td className="px-4 py-3 text-right font-mono font-bold text-emerald-700">
+                                                    ₦{Number(r.net_inflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                 </td>
                                             </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
+                                        );
+                                    })
+                                )}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

@@ -90,40 +90,64 @@ export async function appendExpenseToGoogleSheet(
 /**
  * Appends a recorded service income to the INCOME_LEDGER sheet
  */
-export async function appendInflowToGoogleSheet(
-    spreadsheetId: string,
-    inflow: InflowRecordPayload
-) {
-    const sheets = getGoogleSheetsClient();
+export async function appendInflowToGoogleSheet(record: {
+    id?: string;
+    service_date: string;
+    service_type: string;
+    tithe: number;
+    offering: number;
+    thanksgiving: number;
+    seed: number;
+    other_inflows: number;
+    total_inflow: number;
+    yypc_remittance: number;
+    net_inflow: number;
+    recorded_by?: string;
+    notes?: string | null;
+}) {
+    const sheets = await getGoogleSheetsClient();
+    const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
 
-    // Columns: Transaction ID, Date, Service Type, Tithe, Offering, Thanksg, Seed, Other, Total(formula), YYPC, Net(formula), RecordedBy, Notes
+    // Formats service type cleanly for the sheet (e.g., "Sunday 1st Service")
+    const formatServiceType = (type: string) => {
+        switch (type) {
+            case 'sunday_first':
+                return 'Sunday 1st Service';
+            case 'sunday_second':
+                return 'Sunday 2nd Service';
+            case 'midweek':
+                return 'Midweek Service';
+            case 'special':
+                return 'Special Program';
+            default:
+                return type.replace(/_/g, ' ');
+        }
+    };
+
     const row = [
-        inflow.transactionId,
-        inflow.date,
-        inflow.serviceType,
-        inflow.tithe,
-        inflow.offering,
-        inflow.thanksgiving,
-        inflow.seed,
-        inflow.otherInflows,
-        `=SUM(D${'{row}'}:H${'{row}'})`, // Injected via formula or direct user-entered
-        inflow.yypcRemittance,
-        `=I${'{row}'}-J${'{row}'}`,
-        inflow.recordedBy,
-        inflow.notes || '',
+        record.id || `TX-${Date.now().toString().slice(-6)}`, // Column A: Transaction ID
+        record.service_date,                                   // Column B: Date
+        formatServiceType(record.service_type),                // Column C: Service Type
+        record.tithe || 0,                                     // Column D: Tithe (NGN)
+        record.offering || 0,                                  // Column E: Offering (NGN)
+        record.thanksgiving || 0,                              // Column F: Thanksgiving (NGN)
+        record.seed || 0,                                      // Column G: Seed (NGN)
+        record.other_inflows || 0,                             // Column H: Other Inflows (NGN)
+        record.total_inflow || 0,                              // Column I: Total Inflow (NGN)
+        record.yypc_remittance || 0,                           // Column J: YYPC Remittance (NGN)
+        record.net_inflow || 0,                                // Column K: Net Inflow (NGN)
+        record.recorded_by || 'Admin 1',                       // Column L: Recorded By
+        record.notes || '',                                    // Column M: Notes
     ];
 
-    const response = await sheets.spreadsheets.values.append({
+    await sheets.spreadsheets.values.append({
         spreadsheetId,
         range: 'INCOME_LEDGER!A:M',
         valueInputOption: 'USER_ENTERED',
-        insertDataOption: 'INSERT_ROWS',
         requestBody: {
             values: [row],
         },
     });
-
-    return response.data;
 }
 
 /**
