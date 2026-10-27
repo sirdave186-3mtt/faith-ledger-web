@@ -145,24 +145,24 @@ export default function DashboardOverviewPage() {
             {/* Top Banner */}
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100">Executive Overview</h1>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <h1 className="text-2xl font-bold text-slate-900">Executive Overview</h1>
+                    <p className="mt-1 text-xs text-slate-500">
                         Real-time cash flow, budget utilization gauges, and Four-Rule governance pipeline.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Link
                         href="/requests/new"
-                        className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 transition shadow-md shadow-amber-500/20"
+                        className="flex items-center gap-2 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 transition shadow-sm shadow-amber-500/20"
                     >
                         <CreditCard className="h-4 w-4" />
                         <span>New Requisition</span>
                     </Link>
                     <Link
                         href="/income"
-                        className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-200 hover:bg-slate-800 transition"
+                        className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition shadow-sm"
                     >
-                        <DollarSign className="h-4 w-4 text-emerald-400" />
+                        <DollarSign className="h-4 w-4 text-emerald-600" />
                         <span>Record Giving</span>
                     </Link>
                 </div>
@@ -171,98 +171,100 @@ export default function DashboardOverviewPage() {
             {/* KPI Stats Grid */}
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Gross Inflow */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                             Total Inflows
                         </span>
-                        <div className="rounded-lg bg-emerald-500/10 p-2 text-emerald-400">
+                        <div className="rounded-lg bg-emerald-50 p-2 text-emerald-600 border border-emerald-100">
                             <TrendingUp className="h-4 w-4" />
                         </div>
                     </div>
-                    <p className="mt-3 text-2xl font-bold font-mono text-slate-100">
+                    <p className="mt-3 text-2xl font-bold font-mono text-slate-900">
                         ₦{metrics.totalInflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-400">Tithes, Offerings, Seeds</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Tithes, Offerings, Seeds</p>
                 </div>
 
                 {/* YYPC Remittance */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-rose-400">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-rose-600">
                             YYPC Remittances
                         </span>
-                        <div className="rounded-lg bg-rose-500/10 p-2 text-rose-400">
+                        <div className="rounded-lg bg-rose-50 p-2 text-rose-600 border border-rose-100">
                             <DollarSign className="h-4 w-4" />
                         </div>
                     </div>
-                    <p className="mt-3 text-2xl font-bold font-mono text-rose-400">
+                    <p className="mt-3 text-2xl font-bold font-mono text-rose-600">
                         -₦{metrics.totalYYPC.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-400">Parent Church Deductions</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Parent Church Deductions</p>
                 </div>
 
                 {/* Total Expenses Disbursed */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                             Disbursed Expenses
                         </span>
-                        <div className="rounded-lg bg-amber-500/10 p-2 text-amber-500">
+                        <div className="rounded-lg bg-amber-50 p-2 text-amber-600 border border-amber-100">
                             <CreditCard className="h-4 w-4" />
                         </div>
                     </div>
-                    <p className="mt-3 text-2xl font-bold font-mono text-slate-100">
+                    <p className="mt-3 text-2xl font-bold font-mono text-slate-900">
                         ₦{metrics.totalExpenses.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-400">Approved by Senior Pastor</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Approved by Senior Pastor</p>
                 </div>
 
                 {/* Net Retained Cash */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-lg">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-amber-400">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-amber-700">
                             Net Cash Balance
                         </span>
-                        <div className="rounded-lg bg-amber-500/10 p-2 text-amber-400">
+                        <div className="rounded-lg bg-amber-50 p-2 text-amber-600 border border-amber-100">
                             <ShieldAlert className="h-4 w-4" />
                         </div>
                     </div>
-                    <p className="mt-3 text-2xl font-bold font-mono text-amber-400">
+                    <p className="mt-3 text-2xl font-bold font-mono text-amber-700">
                         ₦{metrics.netCashBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="mt-1 text-[11px] text-slate-400">Retained after YYPC & Expenses</p>
+                    <p className="mt-1 text-[11px] text-slate-500">Retained after YYPC & Expenses</p>
                 </div>
             </div>
 
             {/* Middle Section: Budget Utilization Gauges + Governance Pipeline Alert */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 {/* Category Budget Utilization Bars */}
-                <div className="lg:col-span-8 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div className="lg:col-span-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div>
-                            <h2 className="text-sm font-bold text-slate-200">
+                            <h2 className="text-sm font-bold text-slate-900">
                                 Monthly Expenditure Utilization Gauges
                             </h2>
-                            <p className="text-[11px] text-slate-400">
+                            <p className="text-[11px] text-slate-500">
                                 Monitors spending across the church's core expense buckets
                             </p>
                         </div>
-                        <span className="text-[11px] font-mono text-amber-400">HOL Benchmark</span>
+                        <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-mono font-bold text-amber-800">
+                            HOL Benchmark
+                        </span>
                     </div>
 
                     <div className="mt-6 space-y-5">
                         {/* Allowances */}
                         <div>
-                            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
+                            <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-2">
-                                    <Award className="h-4 w-4 text-amber-400" /> Allowances (Ministers & Pastoral)
+                                    <Award className="h-4 w-4 text-amber-600" /> Allowances (Ministers & Pastoral)
                                 </span>
-                                <span className="font-mono text-slate-400">
+                                <span className="font-mono text-slate-500">
                                     ₦{expenses.allowances.toLocaleString()} / ₦{monthlyExpenseCaps.allowances.toLocaleString()} ({calculateBurn(expenses.allowances, monthlyExpenseCaps.allowances)}%)
                                 </span>
                             </div>
-                            <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
                                 <div
                                     style={{ width: `${calculateBurn(expenses.allowances, monthlyExpenseCaps.allowances)}%` }}
                                     className="h-full bg-amber-500 rounded-full transition-all duration-500"
@@ -272,15 +274,15 @@ export default function DashboardOverviewPage() {
 
                         {/* Welfare */}
                         <div>
-                            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
+                            <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-2">
-                                    <HeartHandshake className="h-4 w-4 text-emerald-400" /> Welfare & Community Support
+                                    <HeartHandshake className="h-4 w-4 text-emerald-600" /> Welfare & Community Support
                                 </span>
-                                <span className="font-mono text-slate-400">
+                                <span className="font-mono text-slate-500">
                                     ₦{expenses.welfare.toLocaleString()} / ₦{monthlyExpenseCaps.welfare.toLocaleString()} ({calculateBurn(expenses.welfare, monthlyExpenseCaps.welfare)}%)
                                 </span>
                             </div>
-                            <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
                                 <div
                                     style={{ width: `${calculateBurn(expenses.welfare, monthlyExpenseCaps.welfare)}%` }}
                                     className="h-full bg-emerald-500 rounded-full transition-all duration-500"
@@ -290,15 +292,15 @@ export default function DashboardOverviewPage() {
 
                         {/* Utilities */}
                         <div>
-                            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
+                            <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-2">
-                                    <Lightbulb className="h-4 w-4 text-sky-400" /> Utilities (Electricity, Sound, Water)
+                                    <Lightbulb className="h-4 w-4 text-sky-600" /> Utilities (Electricity, Sound, Water)
                                 </span>
-                                <span className="font-mono text-slate-400">
+                                <span className="font-mono text-slate-500">
                                     ₦{expenses.utilities.toLocaleString()} / ₦{monthlyExpenseCaps.utilities.toLocaleString()} ({calculateBurn(expenses.utilities, monthlyExpenseCaps.utilities)}%)
                                 </span>
                             </div>
-                            <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
                                 <div
                                     style={{ width: `${calculateBurn(expenses.utilities, monthlyExpenseCaps.utilities)}%` }}
                                     className="h-full bg-sky-500 rounded-full transition-all duration-500"
@@ -308,15 +310,15 @@ export default function DashboardOverviewPage() {
 
                         {/* Fuel */}
                         <div>
-                            <div className="flex justify-between text-xs font-semibold text-slate-300 mb-1.5">
+                            <div className="flex justify-between text-xs font-semibold text-slate-700 mb-1.5">
                                 <span className="flex items-center gap-2">
-                                    <Fuel className="h-4 w-4 text-rose-400" /> Fuel (Generator & Logistics)
+                                    <Fuel className="h-4 w-4 text-rose-600" /> Fuel (Generator & Logistics)
                                 </span>
-                                <span className="font-mono text-slate-400">
+                                <span className="font-mono text-slate-500">
                                     ₦{expenses.fuel.toLocaleString()} / ₦{monthlyExpenseCaps.fuel.toLocaleString()} ({calculateBurn(expenses.fuel, monthlyExpenseCaps.fuel)}%)
                                 </span>
                             </div>
-                            <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
+                            <div className="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden">
                                 <div
                                     style={{ width: `${calculateBurn(expenses.fuel, monthlyExpenseCaps.fuel)}%` }}
                                     className="h-full bg-rose-500 rounded-full transition-all duration-500"
@@ -329,29 +331,29 @@ export default function DashboardOverviewPage() {
                 {/* Four-Rule Governance Status & Attendance Card */}
                 <div className="lg:col-span-4 space-y-6">
                     {/* Governance Card */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <span className="text-xs font-bold text-slate-200">Requisitions in Pipeline</span>
-                            <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-400 border border-amber-500/20">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span className="text-xs font-bold text-slate-900">Requisitions in Pipeline</span>
+                            <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold text-amber-800 border border-amber-200">
                                 Rule 2 & 3
                             </span>
                         </div>
 
                         <div className="mt-4 flex items-center gap-3">
-                            <div className="rounded-xl bg-amber-500/10 p-3 text-amber-500">
+                            <div className="rounded-xl bg-amber-50 p-3 text-amber-600 border border-amber-100">
                                 <AlertTriangle className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold font-mono text-slate-100">
+                                <p className="text-2xl font-bold font-mono text-slate-900">
                                     {metrics.pendingRequisitionsCount}
                                 </p>
-                                <p className="text-xs text-slate-400">Awaiting Sign-off or Release</p>
+                                <p className="text-xs text-slate-500">Awaiting Sign-off or Release</p>
                             </div>
                         </div>
 
                         <Link
                             href="/requests"
-                            className="mt-5 flex items-center justify-between rounded-xl bg-slate-800/80 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-800 hover:text-amber-400 transition"
+                            className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-amber-800 transition"
                         >
                             <span>Review Requisitions</span>
                             <ArrowRight className="h-4 w-4" />
@@ -359,29 +361,29 @@ export default function DashboardOverviewPage() {
                     </div>
 
                     {/* Attendance Snapshot */}
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <span className="text-xs font-bold text-slate-200">Latest Attendance</span>
-                            <span className="text-[11px] text-slate-400 font-mono">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span className="text-xs font-bold text-slate-900">Latest Attendance</span>
+                            <span className="text-[11px] text-slate-500 font-mono">
                                 {metrics.latestAttendanceDate}
                             </span>
                         </div>
 
                         <div className="mt-4 flex items-center gap-3">
-                            <div className="rounded-xl bg-sky-500/10 p-3 text-sky-400">
+                            <div className="rounded-xl bg-sky-50 p-3 text-sky-600 border border-sky-100">
                                 <Users className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold font-mono text-slate-100">
+                                <p className="text-2xl font-bold font-mono text-slate-900">
                                     {metrics.latestAttendanceTotal.toLocaleString()}
                                 </p>
-                                <p className="text-xs text-slate-400">Total Worshippers Present</p>
+                                <p className="text-xs text-slate-500">Total Worshippers Present</p>
                             </div>
                         </div>
 
                         <Link
                             href="/attendance"
-                            className="mt-5 flex items-center justify-between rounded-xl bg-slate-800/80 px-4 py-2.5 text-xs font-medium text-slate-200 hover:bg-slate-800 hover:text-sky-400 transition"
+                            className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-100 hover:text-sky-800 transition"
                         >
                             <span>View Attendance Register</span>
                             <ArrowRight className="h-4 w-4" />

@@ -97,15 +97,15 @@ export default function RequestGovernanceCard({
     };
 
     return (
-        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                 <div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Governance Stage</span>
-                    <p className="text-sm font-bold text-slate-200 capitalize">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">Governance Stage</span>
+                    <p className="text-sm font-bold text-slate-900 capitalize">
                         {requisition.status.replace(/_/g, ' ')}
                     </p>
                 </div>
-                <span className="text-xs font-mono text-amber-400 font-semibold">
+                <span className="text-xs font-mono text-amber-700 font-bold">
                     Role: {currentUserRole.replace('_', ' ').toUpperCase()}
                 </span>
             </div>
@@ -114,21 +114,21 @@ export default function RequestGovernanceCard({
                 {/* RULE 2 ACTIONS: Admin 1 */}
                 {requisition.status === 'pending_compliance' && currentUserRole === 'admin_1' && (
                     <div className="space-y-3">
-                        <p className="text-xs text-slate-300">
+                        <p className="text-xs text-slate-600">
                             Verify quotes, invoice authenticity, and budget caps before releasing to the Pastor.
                         </p>
                         <div className="flex gap-2">
                             <button
                                 disabled={loading}
                                 onClick={() => handleComplianceSignoff(true)}
-                                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500"
+                                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-500 shadow-sm"
                             >
                                 <Check className="h-4 w-4" /> Pass Compliance
                             </button>
                             <button
                                 disabled={loading}
                                 onClick={() => handleComplianceSignoff(false)}
-                                className="flex items-center justify-center gap-1.5 rounded-lg bg-rose-600/20 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-600/30 border border-rose-500/30"
+                                className="flex items-center justify-center gap-1.5 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 border border-rose-200"
                             >
                                 <X className="h-4 w-4" /> Reject
                             </button>
@@ -140,21 +140,21 @@ export default function RequestGovernanceCard({
                 {requisition.status === 'pending_executive_approval' &&
                     (currentUserRole === 'senior_pastor' || currentUserRole === 'admin_2') && (
                         <div className="space-y-3">
-                            <p className="text-xs text-slate-300">
+                            <p className="text-xs text-slate-600">
                                 Executive sign-off required to authorize disbursement of funds.
                             </p>
                             <div className="flex gap-2">
                                 <button
                                     disabled={loading}
                                     onClick={() => handleExecutiveApproval(true)}
-                                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400"
+                                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 hover:bg-amber-400 shadow-sm"
                                 >
                                     <Check className="h-4 w-4" /> Authorize Fund Release
                                 </button>
                                 <button
                                     disabled={loading}
                                     onClick={() => handleExecutiveApproval(false)}
-                                    className="flex items-center justify-center gap-1.5 rounded-lg bg-rose-600/20 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-600/30 border border-rose-500/30"
+                                    className="flex items-center justify-center gap-1.5 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 border border-rose-200"
                                 >
                                     <X className="h-4 w-4" /> Decline
                                 </button>
@@ -166,7 +166,7 @@ export default function RequestGovernanceCard({
                 {requisition.status === 'approved_for_disbursement' &&
                     (currentUserRole === 'treasurer_1' || currentUserRole === 'treasurer_2') && (
                         <div className="space-y-3">
-                            <p className="text-xs text-slate-300">
+                            <p className="text-xs text-slate-600">
                                 Execute the bank transfer and input the bank debit/transaction reference.
                             </p>
                             <input
@@ -174,12 +174,12 @@ export default function RequestGovernanceCard({
                                 placeholder="Bank Transfer / Session ID Reference"
                                 value={paymentRef}
                                 onChange={(e) => setPaymentRef(e.target.value)}
-                                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:outline-none placeholder:text-slate-400 shadow-sm"
                             />
                             <button
                                 disabled={loading || !paymentRef.trim()}
                                 onClick={handleDisbursement}
-                                className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50"
+                                className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-500 disabled:opacity-50 shadow-sm"
                             >
                                 <CreditCard className="h-4 w-4" /> Confirm Disbursement & Sync Ledger
                             </button>
@@ -188,7 +188,7 @@ export default function RequestGovernanceCard({
 
                 {/* Waiting states for unauthorized or pending roles */}
                 {requisition.status === 'disbursed' && (
-                    <p className="text-xs font-medium text-emerald-400">
+                    <p className="text-xs font-medium text-emerald-700">
                         ✓ Disbursed & Synchronized to Admin 1 Google Sheet.
                     </p>
                 )}

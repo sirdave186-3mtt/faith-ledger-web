@@ -73,49 +73,49 @@ export default function AuditTrailPage() {
         switch (action) {
             case 'UPDATED_VIA_GOOGLE_SHEETS':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
                         <FileSpreadsheet className="h-3 w-3" /> Sheets Two-Way Sync
                     </span>
                 );
             case 'RULE_1_INITIATED':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400 border border-amber-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 border border-amber-200">
                         <Clock className="h-3 w-3" /> Requisition Initiated
                     </span>
                 );
             case 'RULE_2_COMPLIANCE_CLEARED':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-sky-400 border border-sky-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 border border-sky-200">
                         <ShieldCheck className="h-3 w-3" /> Compliance Approved
                     </span>
                 );
             case 'RULE_3_EXECUTIVE_APPROVED':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-400 border border-indigo-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-800 border border-indigo-200">
                         <CheckCircle2 className="h-3 w-3" /> Executive Approved
                     </span>
                 );
             case 'RULE_4_DISBURSED':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
                         <CheckCircle2 className="h-3 w-3" /> Funds Disbursed
                     </span>
                 );
             case 'INFLOW_RECORDED':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400 border border-amber-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-800 border border-amber-200">
                         <Database className="h-3 w-3" /> Inflow Logged
                     </span>
                 );
             case 'ATTENDANCE_LOGGED':
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-sky-400 border border-sky-500/20">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-0.5 text-[11px] font-semibold text-sky-800 border border-sky-200">
                         <Layers className="h-3 w-3" /> Attendance Logged
                     </span>
                 );
             default:
                 return (
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-2.5 py-0.5 text-[11px] font-semibold text-slate-300 border border-slate-700">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 border border-slate-200">
                         <ShieldCheck className="h-3 w-3" /> {action}
                     </span>
                 );
@@ -147,24 +147,24 @@ export default function AuditTrailPage() {
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold text-slate-100">Audit Trail & Governance Logs</h1>
-                        <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/20">
+                        <h1 className="text-2xl font-bold text-slate-900">Audit Trail & Governance Logs</h1>
+                        <span className="flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 border border-emerald-200">
                             <Lock className="h-3 w-3" /> Immutable
                         </span>
                     </div>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-slate-500">
                         Trace all four-rule requisition approvals, income insertions, and two-way Google Sheets sync events.
                     </p>
                 </div>
 
-                <div className="flex items-center gap-2 rounded-xl bg-slate-900 border border-slate-800 px-4 py-2 text-xs text-slate-300">
+                <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-4 py-2 text-xs text-slate-700 shadow-sm">
                     <Clock className="h-4 w-4 text-amber-500" />
                     <span>Real-time Event Logging Active</span>
                 </div>
             </div>
 
             {/* Filter and Search Bar */}
-            <div className="flex flex-col gap-4 border-b border-slate-800 pb-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="relative w-full lg:w-80">
                     <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
                     <input
@@ -172,20 +172,20 @@ export default function AuditTrailPage() {
                         placeholder="Search by actor, entity ID, or diff..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full rounded-xl border border-slate-800 bg-slate-900/80 py-2 pl-9 pr-3 text-xs text-slate-100 placeholder-slate-500 focus:border-amber-500 focus:outline-none"
+                        className="w-full rounded-xl border border-slate-300 bg-white py-2 pl-9 pr-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
                     />
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3">
                     {/* Action Filter */}
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                             Event:
                         </span>
                         <select
                             value={actionFilter}
                             onChange={(e) => setActionFilter(e.target.value)}
-                            className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 focus:border-amber-500 focus:outline-none"
+                            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
                         >
                             <option value="all">All Events</option>
                             <option value="RULE_1_INITIATED">Requisition Initiated</option>
@@ -200,13 +200,13 @@ export default function AuditTrailPage() {
 
                     {/* Entity Filter */}
                     <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                             Entity:
                         </span>
                         <select
                             value={entityFilter}
                             onChange={(e) => setEntityFilter(e.target.value)}
-                            className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-1.5 text-xs text-slate-200 focus:border-amber-500 focus:outline-none"
+                            className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
                         >
                             <option value="all">All Entities</option>
                             <option value="expense_requisitions">Expense Requisitions</option>
@@ -219,11 +219,11 @@ export default function AuditTrailPage() {
             </div>
 
             {/* Audit Log Table */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/80 shadow-xl overflow-hidden">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
                         <thead>
-                            <tr className="border-b border-slate-800 bg-slate-950/40 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                            <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                                 <th className="px-5 py-3.5">Timestamp</th>
                                 <th className="px-5 py-3.5">Action Event</th>
                                 <th className="px-5 py-3.5">Actor & Role</th>
@@ -232,7 +232,7 @@ export default function AuditTrailPage() {
                                 <th className="px-5 py-3.5 text-right">Payload Diff</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/60">
+                        <tbody className="divide-y divide-slate-100">
                             {isLoading ? (
                                 <tr>
                                     <td colSpan={6} className="py-12 text-center text-slate-500">
@@ -255,10 +255,10 @@ export default function AuditTrailPage() {
                                         <tr
                                             key={log.id}
                                             onClick={() => setSelectedLog(log)}
-                                            className="cursor-pointer hover:bg-slate-800/40 transition group"
+                                            className="cursor-pointer hover:bg-slate-50/80 transition group"
                                         >
                                             <td className="px-5 py-3.5 whitespace-nowrap">
-                                                <p className="font-mono text-slate-200">{formattedDate}</p>
+                                                <p className="font-mono text-slate-800">{formattedDate}</p>
                                                 <p className="text-[10px] text-slate-500 font-mono">{formattedTime}</p>
                                             </td>
 
@@ -267,19 +267,19 @@ export default function AuditTrailPage() {
                                             </td>
 
                                             <td className="px-5 py-3.5">
-                                                <p className="font-semibold text-slate-200">
+                                                <p className="font-semibold text-slate-800">
                                                     {log.actor_profile?.full_name || 'System / Google Script'}
                                                 </p>
-                                                <p className="text-[10px] font-mono uppercase text-amber-400">
+                                                <p className="text-[10px] font-mono uppercase text-amber-700 font-semibold">
                                                     {log.actor_profile?.role ? log.actor_profile.role.replace('_', ' ') : 'External Service'}
                                                 </p>
                                             </td>
 
-                                            <td className="px-5 py-3.5 capitalize font-medium text-slate-300">
+                                            <td className="px-5 py-3.5 capitalize font-medium text-slate-700">
                                                 {log.entity_name.replace(/_/g, ' ')}
                                             </td>
 
-                                            <td className="px-5 py-3.5 font-mono text-[11px] text-slate-400">
+                                            <td className="px-5 py-3.5 font-mono text-[11px] text-slate-500">
                                                 {log.entity_id ? `${log.entity_id.slice(0, 8)}...` : 'N/A'}
                                             </td>
 
@@ -289,7 +289,7 @@ export default function AuditTrailPage() {
                                                         e.stopPropagation();
                                                         setSelectedLog(log);
                                                     }}
-                                                    className="inline-flex items-center gap-1 rounded-lg bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-300 group-hover:bg-amber-500 group-hover:text-slate-950 transition"
+                                                    className="inline-flex items-center gap-1 rounded-lg bg-slate-100 border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-700 group-hover:bg-amber-500 group-hover:text-slate-950 group-hover:border-amber-500 transition shadow-sm"
                                                 >
                                                     <Code className="h-3 w-3" />
                                                     <span>Inspect</span>
@@ -306,48 +306,48 @@ export default function AuditTrailPage() {
 
             {/* JSON Metadata Diff Modal */}
             {selectedLog && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-                    <div className="relative w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+                    <div className="relative w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                             <div>
-                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
                                     Audit Snapshot Details
                                 </span>
-                                <h3 className="text-base font-bold text-slate-100 flex items-center gap-2 mt-0.5">
+                                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2 mt-0.5">
                                     <span>{selectedLog.action}</span>
                                 </h3>
                             </div>
                             <button
                                 onClick={() => setSelectedLog(null)}
-                                className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                             >
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
 
                         {/* Event Summary Grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-950/60 p-3.5 rounded-xl border border-slate-800">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-200">
                             <div>
                                 <span className="text-slate-500">Timestamp:</span>
-                                <p className="font-mono text-slate-200 mt-0.5">
+                                <p className="font-mono text-slate-800 mt-0.5">
                                     {new Date(selectedLog.created_at).toLocaleString()}
                                 </p>
                             </div>
                             <div>
                                 <span className="text-slate-500">Actor:</span>
-                                <p className="font-semibold text-slate-200 mt-0.5">
+                                <p className="font-semibold text-slate-800 mt-0.5">
                                     {selectedLog.actor_profile?.full_name || 'System / Sync'}
                                 </p>
                             </div>
                             <div>
                                 <span className="text-slate-500">Entity:</span>
-                                <p className="font-mono text-amber-400 mt-0.5">
+                                <p className="font-mono text-amber-700 font-semibold mt-0.5">
                                     {selectedLog.entity_name}
                                 </p>
                             </div>
                             <div>
                                 <span className="text-slate-500">Entity ID:</span>
-                                <p className="font-mono text-slate-300 mt-0.5 truncate" title={selectedLog.entity_id}>
+                                <p className="font-mono text-slate-700 mt-0.5 truncate" title={selectedLog.entity_id}>
                                     {selectedLog.entity_id}
                                 </p>
                             </div>
@@ -356,7 +356,7 @@ export default function AuditTrailPage() {
                         {/* Code Diff Display */}
                         <div>
                             <div className="flex items-center justify-between pb-1.5">
-                                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">
                                     Recorded Payload / State Transition Diff
                                 </span>
                                 <span className="text-[10px] font-mono text-slate-500">JSON Format</span>
@@ -369,7 +369,7 @@ export default function AuditTrailPage() {
                         <div className="flex justify-end pt-2">
                             <button
                                 onClick={() => setSelectedLog(null)}
-                                className="rounded-lg bg-slate-800 px-4 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition"
+                                className="rounded-lg bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition"
                             >
                                 Close Inspector
                             </button>

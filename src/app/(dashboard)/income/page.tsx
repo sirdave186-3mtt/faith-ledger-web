@@ -181,13 +181,13 @@ export default function IncomePage() {
             {/* Header */}
             <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-100">Income & Giving Ledger</h1>
-                    <p className="mt-1 text-xs text-slate-400">
+                    <h1 className="text-2xl font-bold text-slate-900">Income & Giving Ledger</h1>
+                    <p className="mt-1 text-xs text-slate-500">
                         Record weekly collections, Thanksgiving, Seed Faith, and automatically calculate YYPC deductions.
                     </p>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg bg-slate-900 border border-slate-800 px-3 py-1.5 text-xs text-slate-300">
-                    <Calendar className="h-4 w-4 text-amber-500" />
+                <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 px-3.5 py-1.5 text-xs text-slate-700 shadow-sm">
+                    <Calendar className="h-4 w-4 text-amber-600" />
                     <span>Active Period: {activePeriod}</span>
                 </div>
             </div>
@@ -195,23 +195,23 @@ export default function IncomePage() {
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
                 {/* Entry Form */}
                 <div className="lg:col-span-5">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-xl backdrop-blur-sm">
-                        <div className="flex items-center gap-2 border-b border-slate-800 pb-4 text-amber-400 font-semibold text-sm">
-                            <PlusCircle className="h-4 w-4" />
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center gap-2 border-b border-slate-100 pb-4 text-amber-700 font-bold text-sm">
+                            <PlusCircle className="h-4 w-4 text-amber-600" />
                             <span>Record Service Inflow</span>
                         </div>
 
                         {statusMsg && (
                             <div
                                 className={`mt-4 flex items-center gap-2 rounded-lg p-3 text-xs border ${statusMsg.type === 'success'
-                                        ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
-                                        : 'border-rose-500/20 bg-rose-500/10 text-rose-400'
+                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
+                                        : 'border-rose-200 bg-rose-50 text-rose-800'
                                     }`}
                             >
                                 {statusMsg.type === 'success' ? (
-                                    <CheckCircle2 className="h-4 w-4 shrink-0" />
+                                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                                 ) : (
-                                    <AlertCircle className="h-4 w-4 shrink-0" />
+                                    <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
                                 )}
                                 <span>{statusMsg.text}</span>
                             </div>
@@ -220,7 +220,7 @@ export default function IncomePage() {
                         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Service Date
                                     </label>
                                     <input
@@ -228,18 +228,18 @@ export default function IncomePage() {
                                         required
                                         value={serviceDate}
                                         onChange={(e) => setServiceDate(e.target.value)}
-                                        className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Service Type
                                     </label>
                                     <select
                                         value={serviceType}
                                         onChange={(e: any) => setServiceType(e.target.value)}
-                                        className="mt-1.5 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1.5 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
                                     >
                                         <option value="sunday_service">Sunday Service</option>
                                         <option value="midweek_service">Midweek Service</option>
@@ -252,7 +252,7 @@ export default function IncomePage() {
                             {/* Inflow Inputs */}
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Tithe (₦)
                                     </label>
                                     <input
@@ -261,12 +261,12 @@ export default function IncomePage() {
                                         placeholder="0.00"
                                         value={tithe}
                                         onChange={(e) => setTithe(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Offering (₦)
                                     </label>
                                     <input
@@ -275,14 +275,14 @@ export default function IncomePage() {
                                         placeholder="0.00"
                                         value={offering}
                                         onChange={(e) => setOffering(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Thanksgiving (₦)
                                     </label>
                                     <input
@@ -291,12 +291,12 @@ export default function IncomePage() {
                                         placeholder="0.00"
                                         value={thanksgiving}
                                         onChange={(e) => setThanksgiving(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Seed Faith (₦)
                                     </label>
                                     <input
@@ -305,14 +305,14 @@ export default function IncomePage() {
                                         placeholder="0.00"
                                         value={seed}
                                         onChange={(e) => setSeed(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
                                     />
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                         Other Inflows (₦)
                                     </label>
                                     <input
@@ -321,12 +321,12 @@ export default function IncomePage() {
                                         placeholder="0.00"
                                         value={otherInflows}
                                         onChange={(e) => setOtherInflows(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                        className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm font-mono"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-rose-400">
+                                    <label className="block text-[11px] font-semibold uppercase tracking-wider text-rose-700">
                                         YYPC Remittance (₦)
                                     </label>
                                     <input
@@ -335,35 +335,35 @@ export default function IncomePage() {
                                         placeholder="0.00"
                                         value={yypcRemittance}
                                         onChange={(e) => setYypcRemittance(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                                        className="mt-1 w-full rounded-lg border border-rose-900/50 bg-rose-950/20 px-3 py-2 text-xs text-rose-200 focus:border-rose-500 focus:outline-none"
+                                        className="mt-1 w-full rounded-lg border border-rose-300 bg-rose-50/60 px-3 py-2 text-xs text-rose-900 focus:border-rose-500 focus:ring-1 focus:ring-rose-500 focus:outline-none shadow-sm font-mono"
                                     />
                                 </div>
                             </div>
 
                             {/* Dynamic Calculations Widget */}
-                            <div className="rounded-xl border border-slate-800 bg-slate-950/60 p-4 space-y-2.5">
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-2.5">
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-slate-400">Total Gross Inflow:</span>
-                                    <span className="font-semibold text-slate-100 font-mono">
+                                    <span className="text-slate-600">Total Gross Inflow:</span>
+                                    <span className="font-bold text-slate-900 font-mono">
                                         ₦{calculatedTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-rose-400">YYPC Deduction:</span>
-                                    <span className="font-semibold text-rose-400 font-mono">
+                                    <span className="text-rose-600">YYPC Deduction:</span>
+                                    <span className="font-semibold text-rose-600 font-mono">
                                         - ₦{numYYPC.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
                                 </div>
-                                <div className="border-t border-slate-800 pt-2 flex justify-between items-center text-xs">
-                                    <span className="font-bold text-amber-400">Net Retained Church Inflow:</span>
-                                    <span className="font-bold text-amber-400 font-mono text-sm">
+                                <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-xs">
+                                    <span className="font-bold text-amber-700">Net Retained Church Inflow:</span>
+                                    <span className="font-bold text-amber-700 font-mono text-sm">
                                         ₦{calculatedNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </span>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-700">
                                     Notes / References
                                 </label>
                                 <input
@@ -371,14 +371,14 @@ export default function IncomePage() {
                                     placeholder="e.g. 1st Sunday Thanksgiving, Special Seed pledge"
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
-                                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs text-slate-100 focus:border-amber-500 focus:outline-none"
+                                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none shadow-sm"
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting || calculatedTotal <= 0}
-                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 py-2.5 text-xs font-bold text-slate-950 hover:bg-amber-400 transition disabled:opacity-50"
+                                className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 py-2.5 text-xs font-bold text-slate-950 hover:bg-amber-400 transition disabled:opacity-50 shadow-sm shadow-amber-500/20"
                             >
                                 <DollarSign className="h-4 w-4" />
                                 {isSubmitting ? 'Recording & Syncing...' : 'Save & Sync Inflow'}
@@ -389,19 +389,19 @@ export default function IncomePage() {
 
                 {/* Inflow Ledger View */}
                 <div className="lg:col-span-7 space-y-6">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl">
-                        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                            <div className="flex items-center gap-2 text-slate-200 font-semibold text-sm">
-                                <Layers className="h-4 w-4 text-amber-500" />
+                    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+                                <Layers className="h-4 w-4 text-amber-600" />
                                 <span>Recent Recorded Inflows</span>
                             </div>
-                            <span className="text-[11px] text-slate-400">Last 20 entries</span>
+                            <span className="text-[11px] text-slate-500">Last 20 entries</span>
                         </div>
 
                         <div className="mt-4 overflow-x-auto">
                             <table className="w-full text-left text-xs">
                                 <thead>
-                                    <tr className="border-b border-slate-800 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                                    <tr className="border-b border-slate-200 text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                                         <th className="pb-3">Date</th>
                                         <th className="pb-3">Service</th>
                                         <th className="pb-3">Tithe</th>
@@ -411,7 +411,7 @@ export default function IncomePage() {
                                         <th className="pb-3 text-right">Net Inflow</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-800/60">
+                                <tbody className="divide-y divide-slate-100">
                                     {isLoading ? (
                                         <tr>
                                             <td colSpan={7} className="py-6 text-center text-slate-500">
@@ -426,24 +426,24 @@ export default function IncomePage() {
                                         </tr>
                                     ) : (
                                         records.map((r) => (
-                                            <tr key={r.id} className="hover:bg-slate-800/30 transition">
-                                                <td className="py-3 font-medium text-slate-200">{r.service_date}</td>
-                                                <td className="py-3 text-slate-400 capitalize">
+                                            <tr key={r.id} className="hover:bg-slate-50/80 transition">
+                                                <td className="py-3 font-semibold text-slate-900">{r.service_date}</td>
+                                                <td className="py-3 text-slate-600 capitalize">
                                                     {r.service_type.replace('_', ' ')}
                                                 </td>
-                                                <td className="py-3 font-mono text-slate-300">
+                                                <td className="py-3 font-mono text-slate-700">
                                                     ₦{Number(r.tithe).toLocaleString()}
                                                 </td>
-                                                <td className="py-3 font-mono text-slate-300">
+                                                <td className="py-3 font-mono text-slate-700">
                                                     ₦{Number(r.offering).toLocaleString()}
                                                 </td>
-                                                <td className="py-3 font-mono text-slate-300">
+                                                <td className="py-3 font-mono text-slate-700">
                                                     ₦{(Number(r.seed) + Number(r.thanksgiving)).toLocaleString()}
                                                 </td>
-                                                <td className="py-3 font-mono text-rose-400">
+                                                <td className="py-3 font-mono text-rose-600 font-semibold">
                                                     ₦{Number(r.yypc_remittance).toLocaleString()}
                                                 </td>
-                                                <td className="py-3 font-mono font-bold text-amber-400 text-right">
+                                                <td className="py-3 font-mono font-bold text-amber-700 text-right">
                                                     ₦{Number(r.net_inflow).toLocaleString()}
                                                 </td>
                                             </tr>
